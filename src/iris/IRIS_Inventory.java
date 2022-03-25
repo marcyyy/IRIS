@@ -1,0 +1,1122 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package iris;
+
+import java.sql.Connection;
+import javax.swing.JFrame;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.swing.RowFilter;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
+
+public class IRIS_Inventory extends javax.swing.JFrame {
+    DateFormat dateformat = new SimpleDateFormat("MM-dd-yyyy"); 
+    Date date = new Date();
+    String rdate = dateformat.format(date);
+    SimpleDateFormat timeformat = new SimpleDateFormat("HH:mm:ss");
+    String rtime = timeformat.format(date);
+    
+    Connection con;
+    PreparedStatement pst;
+    ResultSet rs;
+    
+    private void table_update(){
+        //update table
+        int c, scount = 0, rcount = 0, ucount = 0;
+        try{
+        con = IRIS_Connection.getConnection();
+        pst = con.prepareStatement("select * from inventory");
+        rs = pst.executeQuery();
+        ResultSetMetaData rss = rs.getMetaData();
+        c = rss.getColumnCount();
+
+        DefaultTableModel df = (DefaultTableModel)Inv_Table.getModel();
+        df.setRowCount(0);
+        
+        while(rs.next())
+        {
+                Vector v2 = new Vector();
+                for(int a=1; a<=c; a++)
+                {
+                        v2.add(rs.getString("item_id"));
+                        v2.add(rs.getString("item_name"));
+                        v2.add(rs.getString("item_description"));
+                        v2.add(rs.getString("item_status"));
+                        v2.add(rs.getString("item_source"));
+                        v2.add(rs.getString("item_availability"));
+                        v2.add(rs.getString("item_officer"));
+                        v2.add(rs.getString("item_date"));
+                }
+                if("In Stock".equals(v2.get(5))){
+                    scount++;
+                }
+                if("Under Rent".equals(v2.get(5))){
+                    rcount++;
+                }
+                if("Unavailable".equals(v2.get(5))){
+                    ucount++;
+                }
+                df.addRow(v2);
+        }
+        
+        String str1 = Integer.toString(scount);
+        Inv_TotStock.setText(str1);
+        String str2 = Integer.toString(rcount);
+        Inv_TotRental.setText(str2);
+        String str3 = Integer.toString(ucount);
+        Inv_TotUn.setText(str3);
+        
+        Inv_Table.setAutoCreateRowSorter(true);
+        }catch (SQLException ex) {
+                //JOptionPane.showMessageDialog(null,"Failed");
+                Logger.getLogger(IRIS_Inventory.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void InvUpdate(){
+        try{
+           SimpleDateFormat hour = new SimpleDateFormat("HH");
+            String hourtime = hour.format(date);
+            int htime = Integer.parseInt(hourtime);
+            SimpleDateFormat minute = new SimpleDateFormat("mm");
+            String minutetime = minute.format(date);
+            int mtime = Integer.parseInt(minutetime);
+            
+           String totime = htime + ":" + mtime;
+            
+           java.util.Date dateStr = dateformat.parse(rdate);
+           java.sql.Date dateDB = new java.sql.Date(dateStr.getTime());
+           con = IRIS_Connection.getConnection();
+           pst = con.prepareStatement("UPDATE inventory i INNER JOIN rental r ON i.item_id = r.rn_itemid SET i.item_availability = 'Under Rent' WHERE i.item_id = r.rn_itemid and r.rn_tmin>=? and r.rn_dtr = ?");
+           pst.setString(1,totime);
+           pst.setDate(2,dateDB);
+           pst.executeUpdate();
+        } catch (SQLException ex) {
+            //JOptionPane.showMessageDialog(null,"Failed");
+            Logger.getLogger(IRIS_AdminAccounts.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ParseException ex) {
+            Logger.getLogger(IRIS_Home.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public IRIS_Inventory() {
+        initComponents();
+        table_update();
+        InvUpdate();
+        Inv_Table.setAutoCreateRowSorter(true);
+        this.setLocationRelativeTo(null);
+    }
+    
+    public IRIS_Inventory(String logname)
+    { 
+        initComponents();
+        table_update();
+        InvUpdate();
+        Logged_Name.setText(logname);
+    }
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jLabel6 = new javax.swing.JLabel();
+        jPanel6 = new javax.swing.JPanel();
+        Inv_Label = new javax.swing.JLabel();
+        Separator = new javax.swing.JSeparator();
+        Inv_LINum = new javax.swing.JLabel();
+        Inv_Id = new javax.swing.JTextField();
+        Inv_LIName = new javax.swing.JLabel();
+        Inv_Name = new javax.swing.JTextField();
+        Inv_LIDesc = new javax.swing.JLabel();
+        Inv_Scroll = new javax.swing.JScrollPane();
+        Inv_Desc = new javax.swing.JTextArea();
+        Inv_LIStatus = new javax.swing.JLabel();
+        Inv_Status = new javax.swing.JComboBox<>();
+        Inv_LISource = new javax.swing.JLabel();
+        Inv_Source = new javax.swing.JComboBox<>();
+        Inv_LTot2 = new javax.swing.JLabel();
+        Inv_Av = new javax.swing.JComboBox<>();
+        Inv_LAvail = new javax.swing.JLabel();
+        Inv_TotAv = new javax.swing.JTextField();
+        Inv_Scroll2 = new javax.swing.JScrollPane();
+        Inv_Table = new javax.swing.JTable();
+        Inv_LTot = new javax.swing.JLabel();
+        Separator1 = new javax.swing.JSeparator();
+        Inv_LTot1 = new javax.swing.JLabel();
+        Inv_TotStock = new javax.swing.JTextField();
+        Inv_LBorrow = new javax.swing.JLabel();
+        Inv_TotRental = new javax.swing.JTextField();
+        Inv_Insert = new javax.swing.JButton();
+        Inv_Delete = new javax.swing.JButton();
+        Inv_Update = new javax.swing.JButton();
+        Inv_LBorrow1 = new javax.swing.JLabel();
+        Inv_TotUn = new javax.swing.JTextField();
+        Inv_SearchBar = new javax.swing.JTextField();
+        Inv_LTot6 = new javax.swing.JLabel();
+        Inv_History = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
+        inv_direct = new javax.swing.JButton();
+        rs_direct = new javax.swing.JButton();
+        rf_direct = new javax.swing.JButton();
+        Logged_Name = new javax.swing.JLabel();
+        out_direct1 = new javax.swing.JButton();
+        logged_as = new javax.swing.JLabel();
+        tr_direct = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setUndecorated(true);
+        setSize(new java.awt.Dimension(1136, 814));
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        jLabel1.setToolTipText("");
+
+        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        jLabel2.setText("IRIS");
+
+        jLabel3.setFont(new java.awt.Font("Tahoma", 2, 12)); // NOI18N
+        jLabel3.setText("IBITS Rental & Inventory System");
+
+        jButton1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jButton1.setText("X");
+        jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton1MouseClicked(evt);
+            }
+        });
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jButton2.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jButton2.setText("_");
+        jButton2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton2MouseClicked(evt);
+            }
+        });
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jLabel6.setIcon(new javax.swing.ImageIcon("C:\\Users\\Raven\\Documents\\NetBeansProjects\\JAVA\\pictures\\50x50.png")); // NOI18N
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(25, 25, 25)
+                .addComponent(jLabel6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addGap(131, 131, 131)
+                        .addComponent(jLabel1))
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 202, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jButton1)
+                .addGap(19, 19, 19))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton2)
+                    .addComponent(jButton1))
+                .addGap(22, 22, 22))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel6)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel3)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jPanel6.setBackground(new java.awt.Color(46, 56, 56));
+        jPanel6.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        Inv_Label.setFont(new java.awt.Font("Tahoma", 3, 36)); // NOI18N
+        Inv_Label.setForeground(new java.awt.Color(252, 226, 5));
+        Inv_Label.setText("Inventory");
+
+        Inv_LINum.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        Inv_LINum.setForeground(new java.awt.Color(204, 204, 204));
+        Inv_LINum.setText("Item Number:");
+
+        Inv_Id.setEditable(false);
+        Inv_Id.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        Inv_Id.setToolTipText("");
+        Inv_Id.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Inv_IdActionPerformed(evt);
+            }
+        });
+
+        Inv_LIName.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        Inv_LIName.setForeground(new java.awt.Color(204, 204, 204));
+        Inv_LIName.setText("Item Name:");
+
+        Inv_Name.setEditable(false);
+        Inv_Name.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        Inv_Name.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Inv_NameActionPerformed(evt);
+            }
+        });
+
+        Inv_LIDesc.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        Inv_LIDesc.setForeground(new java.awt.Color(204, 204, 204));
+        Inv_LIDesc.setText("Item Description:");
+
+        Inv_Desc.setColumns(20);
+        Inv_Desc.setRows(5);
+        Inv_Scroll.setViewportView(Inv_Desc);
+
+        Inv_LIStatus.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        Inv_LIStatus.setForeground(new java.awt.Color(204, 204, 204));
+        Inv_LIStatus.setText("Item Status:");
+
+        Inv_Status.setEditable(true);
+        Inv_Status.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        Inv_Status.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Good Condition", "Under Repair", "Damaged" }));
+        Inv_Status.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Inv_StatusActionPerformed(evt);
+            }
+        });
+
+        Inv_LISource.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        Inv_LISource.setForeground(new java.awt.Color(204, 204, 204));
+        Inv_LISource.setText("Item Source:");
+
+        Inv_Source.setEditable(true);
+        Inv_Source.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        Inv_Source.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Bought", "Donated" }));
+
+        Inv_LTot2.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        Inv_LTot2.setForeground(new java.awt.Color(204, 204, 204));
+        Inv_LTot2.setText("Item Availability:");
+
+        Inv_Av.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        Inv_Av.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "In Stock", "Under Rent", "Unavailable" }));
+
+        Inv_LAvail.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        Inv_LAvail.setForeground(new java.awt.Color(204, 204, 204));
+        Inv_LAvail.setText("Available for Rent:");
+
+        Inv_TotAv.setEditable(false);
+        Inv_TotAv.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+
+        Inv_Table.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null}
+            },
+            new String [] {
+                "Item ID", "Item Name", "Description", "Status", "Source", "Availability", "OIC", "Date"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        Inv_Table.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                Inv_TableMouseClicked(evt);
+            }
+        });
+        Inv_Scroll2.setViewportView(Inv_Table);
+        if (Inv_Table.getColumnModel().getColumnCount() > 0) {
+            Inv_Table.getColumnModel().getColumn(0).setPreferredWidth(20);
+            Inv_Table.getColumnModel().getColumn(2).setPreferredWidth(130);
+        }
+
+        Inv_LTot.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        Inv_LTot.setForeground(new java.awt.Color(204, 204, 204));
+        Inv_LTot.setText("Total Items");
+
+        Inv_LTot1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        Inv_LTot1.setForeground(new java.awt.Color(204, 204, 204));
+        Inv_LTot1.setText("In Stock:");
+
+        Inv_TotStock.setEditable(false);
+        Inv_TotStock.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        Inv_TotStock.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Inv_TotStockActionPerformed(evt);
+            }
+        });
+
+        Inv_LBorrow.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        Inv_LBorrow.setForeground(new java.awt.Color(204, 204, 204));
+        Inv_LBorrow.setText("Under Rental:");
+
+        Inv_TotRental.setEditable(false);
+        Inv_TotRental.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+
+        Inv_Insert.setText("Add an Item");
+        Inv_Insert.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Inv_InsertActionPerformed(evt);
+            }
+        });
+
+        Inv_Delete.setText("Delete");
+        Inv_Delete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Inv_DeleteActionPerformed(evt);
+            }
+        });
+
+        Inv_Update.setText("Update");
+        Inv_Update.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Inv_UpdateActionPerformed(evt);
+            }
+        });
+
+        Inv_LBorrow1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        Inv_LBorrow1.setForeground(new java.awt.Color(204, 204, 204));
+        Inv_LBorrow1.setText("Unavailable:");
+
+        Inv_TotUn.setEditable(false);
+        Inv_TotUn.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+
+        Inv_SearchBar.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        Inv_SearchBar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Inv_SearchBarActionPerformed(evt);
+            }
+        });
+        Inv_SearchBar.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                Inv_SearchBarKeyReleased(evt);
+            }
+        });
+
+        Inv_LTot6.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        Inv_LTot6.setForeground(new java.awt.Color(204, 204, 204));
+        Inv_LTot6.setText("Search:");
+
+        Inv_History.setText("History");
+        Inv_History.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Inv_HistoryActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGap(29, 29, 29)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(Separator, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(Inv_Scroll2, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel6Layout.createSequentialGroup()
+                                .addGap(10, 10, 10)
+                                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel6Layout.createSequentialGroup()
+                                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(Inv_LINum)
+                                            .addComponent(Inv_LIName)
+                                            .addComponent(Inv_LIDesc))
+                                        .addGap(36, 36, 36)
+                                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(Inv_Name)
+                                            .addComponent(Inv_Id)
+                                            .addComponent(Inv_Scroll, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 138, Short.MAX_VALUE)
+                                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(Inv_LIStatus)
+                                            .addComponent(Inv_LTot2)
+                                            .addComponent(Inv_LISource)
+                                            .addComponent(Inv_LAvail))
+                                        .addGap(41, 41, 41)
+                                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addComponent(Inv_Source, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(Inv_Status, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addComponent(Inv_TotAv, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(Inv_Av, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addGroup(jPanel6Layout.createSequentialGroup()
+                                        .addComponent(Inv_Label, javax.swing.GroupLayout.PREFERRED_SIZE, 297, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(Inv_History, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(27, 27, 27)))))
+                        .addGap(29, 29, 29))
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(Inv_LTot)
+                                .addComponent(Separator1, javax.swing.GroupLayout.PREFERRED_SIZE, 415, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel6Layout.createSequentialGroup()
+                                .addGap(1, 1, 1)
+                                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(jPanel6Layout.createSequentialGroup()
+                                        .addComponent(Inv_LBorrow1)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(Inv_TotUn, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(jPanel6Layout.createSequentialGroup()
+                                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                            .addComponent(Inv_LBorrow)
+                                            .addComponent(Inv_LTot1))
+                                        .addGap(18, 18, 18)
+                                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(Inv_TotRental, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(Inv_TotStock, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addGap(80, 80, 80)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(Inv_LTot6)
+                            .addComponent(Inv_SearchBar, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel6Layout.createSequentialGroup()
+                                .addComponent(Inv_Insert, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(Inv_Update, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(Inv_Delete, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(70, 70, 70))))
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(Inv_Label)
+                    .addComponent(Inv_History))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(Separator, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(Inv_LINum)
+                            .addComponent(Inv_Id, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(Inv_LIName)
+                            .addComponent(Inv_Name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(6, 6, 6)
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(Inv_LIDesc)
+                            .addComponent(Inv_Scroll, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(Inv_Status, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(Inv_LIStatus))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(Inv_Source, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(Inv_LISource))
+                        .addGap(6, 6, 6)
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(Inv_LTot2)
+                            .addComponent(Inv_Av, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(6, 6, 6)
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(Inv_TotAv, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(Inv_LAvail))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
+                .addComponent(Inv_Scroll2, javax.swing.GroupLayout.PREFERRED_SIZE, 265, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(13, 13, 13)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addComponent(Inv_LTot)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(Separator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(Inv_LTot1)
+                            .addComponent(Inv_TotStock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(6, 6, 6)
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(Inv_LBorrow)
+                            .addComponent(Inv_TotRental, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(Inv_LBorrow1)
+                            .addComponent(Inv_TotUn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addGap(15, 15, 15)
+                        .addComponent(Inv_LTot6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(Inv_SearchBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(Inv_Insert, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(Inv_Update, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(Inv_Delete, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(19, Short.MAX_VALUE))
+        );
+
+        jPanel2.setBackground(new java.awt.Color(252, 226, 5));
+        jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        inv_direct.setIcon(new javax.swing.ImageIcon(getClass().getResource("/iris/pictures/6564 - Archive.png"))); // NOI18N
+        inv_direct.setText("Inventory");
+        inv_direct.setPreferredSize(new java.awt.Dimension(155, 23));
+        inv_direct.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                inv_directMouseClicked(evt);
+            }
+        });
+        inv_direct.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                inv_directActionPerformed(evt);
+            }
+        });
+
+        rs_direct.setIcon(new javax.swing.ImageIcon(getClass().getResource("/iris/pictures/6568 - Calendar.png"))); // NOI18N
+        rs_direct.setText("Transaction Records");
+        rs_direct.setPreferredSize(new java.awt.Dimension(155, 23));
+        rs_direct.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rs_directActionPerformed(evt);
+            }
+        });
+
+        rf_direct.setIcon(new javax.swing.ImageIcon(getClass().getResource("/iris/pictures/6569 - Compose.png"))); // NOI18N
+        rf_direct.setText("Rental Form");
+        rf_direct.setPreferredSize(new java.awt.Dimension(155, 23));
+        rf_direct.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                rf_directMouseClicked(evt);
+            }
+        });
+        rf_direct.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rf_directActionPerformed(evt);
+            }
+        });
+
+        Logged_Name.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        out_direct1.setText("Log Out");
+        out_direct1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                out_direct1MouseClicked(evt);
+            }
+        });
+        out_direct1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                out_direct1ActionPerformed(evt);
+            }
+        });
+
+        logged_as.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        logged_as.setText("Signed in as:");
+
+        tr_direct.setIcon(new javax.swing.ImageIcon(getClass().getResource("/iris/pictures/6592 - Settings II.png"))); // NOI18N
+        tr_direct.setText("Home");
+        tr_direct.setPreferredSize(new java.awt.Dimension(155, 23));
+        tr_direct.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tr_directMouseClicked(evt);
+            }
+        });
+        tr_direct.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tr_directActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(inv_direct, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE)
+            .addComponent(rs_direct, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(rf_direct, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(out_direct1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(32, 32, 32)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(logged_as, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(Logged_Name, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addGap(27, 27, 27))
+            .addComponent(tr_direct, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(tr_direct, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(rf_direct, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(rs_direct, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(inv_direct, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(logged_as, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(11, 11, 11)
+                .addComponent(Logged_Name, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(out_direct1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(21, 21, 21))
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void Inv_NameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Inv_NameActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_Inv_NameActionPerformed
+
+    private void Inv_IdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Inv_IdActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_Inv_IdActionPerformed
+
+    private void Inv_UpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Inv_UpdateActionPerformed
+        //Update
+        DefaultTableModel df = (DefaultTableModel)Inv_Table.getModel();
+        int selectedIndex = Inv_Table.getSelectedRow();
+
+        try{
+	int item = Integer.parseInt(df.getValueAt(selectedIndex, 0).toString());
+            String invname = Inv_Name.getText();
+            String invdesc = Inv_Desc.getText();
+            String invstatus = Inv_Status.getSelectedItem().toString();
+            String invsource = Inv_Source.getSelectedItem().toString();
+            String invav = Inv_Av.getSelectedItem().toString();
+            String admin = Logged_Name.getText();
+            
+            java.util.Date dateStr = dateformat.parse(rdate);
+            java.sql.Date dateDB = new java.sql.Date(dateStr.getTime());
+            
+            con = IRIS_Connection.getConnection();
+            PreparedStatement pst3,pst4;
+            pst3 = con.prepareStatement("INSERT INTO `inventory_dump`( `item_id`, `item_name`, `item_description`, `item_status`, `item_source`, `item_availability`, `item_officer`, `item_date`) SELECT `item_id`, `item_name`, `item_description`, `item_status`, `item_source`, `item_availability`, `item_officer`, `item_date` FROM `inventory` WHERE item_id = ?", Statement.RETURN_GENERATED_KEYS);
+            pst4 = con.prepareStatement("UPDATE inventory_dump i INNER JOIN inventory r ON i.item_id = r.item_id SET i.dump_type = 'Updated' WHERE i.item_id = r.item_id and i.item_id = ? and i.idump_id = ?");
+
+            pst3.setInt(1, item);
+            pst3.executeUpdate();
+                
+            ResultSet ts = pst3.getGeneratedKeys();
+            int rec_id=0;
+            if (ts.next()){
+                rec_id= ts.getInt(1);
+                }
+                
+            pst4.setInt(1, item);
+            pst4.setInt(2, rec_id);
+            pst4.executeUpdate();
+            
+            pst = con.prepareStatement("update inventory set item_name=?, item_description=?, item_status=?, item_source=?, item_availability=?, item_officer=?, item_date=? where item_id=?");
+            
+			pst.setString(1,invname);
+                        pst.setString(2,invdesc);
+			pst.setString(3,invstatus);
+                        pst.setString(4,invsource);
+			pst.setString(5,invav);
+                        pst.setString(6,admin);
+			pst.setDate(7,dateDB);
+			pst.setInt(8, item);
+		
+            if(pst.executeUpdate() > 0)
+                {
+                    JOptionPane.showMessageDialog(null,"Item Successfully Updated");
+                    table_update();
+                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(null,"Failed");
+                Logger.getLogger(IRIS_AdminAccounts.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ParseException ex) {
+            Logger.getLogger(IRIS_AdminAccounts.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+                   
+    }//GEN-LAST:event_Inv_UpdateActionPerformed
+
+    private void Inv_DeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Inv_DeleteActionPerformed
+        // Delete
+        DefaultTableModel df = (DefaultTableModel)Inv_Table.getModel();
+        int selectedIndex = Inv_Table.getSelectedRow();
+
+        try{
+            int id = Integer.parseInt(df.getValueAt(selectedIndex, 0).toString());
+            
+            PreparedStatement pst3,pst4;
+            pst3 = con.prepareStatement("INSERT INTO `inventory_dump`( `item_id`, `item_name`, `item_description`, `item_status`, `item_source`, `item_availability`, `item_officer`, `item_date`) SELECT `item_id`, `item_name`, `item_description`, `item_status`, `item_source`, `item_availability`, `item_officer`, `item_date` FROM `inventory` WHERE item_id = ?", Statement.RETURN_GENERATED_KEYS);
+            pst4 = con.prepareStatement("UPDATE inventory_dump i INNER JOIN inventory r ON i.item_id = r.item_id SET i.dump_type = 'Deleted' WHERE i.item_id = r.item_id and i.item_id = ? and i.idump_id = ?");
+
+            pst3.setInt(1, id);
+            pst3.executeUpdate();
+                
+            ResultSet ts = pst3.getGeneratedKeys();
+            int rec_id=0;
+            if (ts.next()){
+                rec_id= ts.getInt(1);
+                }
+                
+            pst4.setInt(1, id);
+            pst4.setInt(2, rec_id);
+            pst4.executeUpdate();
+            
+            int dialogRes = JOptionPane.showConfirmDialog(null,"Do you want to Delete the Item?","Warning",JOptionPane.YES_NO_OPTION);
+            if(dialogRes == JOptionPane.YES_OPTION)
+                {   con = IRIS_Connection.getConnection();
+                    pst = con.prepareStatement("delete from inventory where item_id=?");
+                    pst.setInt(1, id);
+                    
+                    if(pst.executeUpdate() > 0)
+                        {
+                            JOptionPane.showMessageDialog(null,"Item Successfully Deleted");
+                            table_update();
+                        }
+
+                }
+
+                    } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(null,"Failed");
+                Logger.getLogger(IRIS_AdminAccounts.class.getName()).log(Level.SEVERE, null, ex);
+            }
+    }//GEN-LAST:event_Inv_DeleteActionPerformed
+
+    private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
+        System.exit(0);
+    }//GEN-LAST:event_jButton1MouseClicked
+
+    private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
+        this.setState(JFrame.ICONIFIED);
+    }//GEN-LAST:event_jButton2MouseClicked
+
+    private void Inv_InsertActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Inv_InsertActionPerformed
+    String logname = Logged_Name.getText();
+        IRIS_NewItem rsn = new IRIS_NewItem(logname);
+        rsn.setVisible(true);
+        rsn.pack();
+        rsn.setLocationRelativeTo(null);
+        rsn.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.dispose();   
+    }//GEN-LAST:event_Inv_InsertActionPerformed
+
+    private void inv_directMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_inv_directMouseClicked
+        
+    }//GEN-LAST:event_inv_directMouseClicked
+
+    private void inv_directActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inv_directActionPerformed
+
+    }//GEN-LAST:event_inv_directActionPerformed
+
+    private void rs_directActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rs_directActionPerformed
+        String logname = Logged_Name.getText();
+        IRIS_RentalSchedule rs = new IRIS_RentalSchedule(logname);
+        rs.setVisible(true);
+        rs.pack();
+        rs.setLocationRelativeTo(null);
+        rs.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.dispose();
+    }//GEN-LAST:event_rs_directActionPerformed
+
+    private void rf_directMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_rf_directMouseClicked
+        String logname = Logged_Name.getText();
+        IRIS_RentalForm rf = new IRIS_RentalForm(logname);
+        rf.setVisible(true);
+        rf.pack();
+        rf.setLocationRelativeTo(null);
+        rf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.dispose();
+    }//GEN-LAST:event_rf_directMouseClicked
+
+    private void rf_directActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rf_directActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_rf_directActionPerformed
+
+    private void out_direct1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_out_direct1MouseClicked
+
+        IRIS_LogIn out = new IRIS_LogIn();
+        out.setVisible(true);
+        out.pack();
+        out.setLocationRelativeTo(null);
+        out.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.dispose();
+    }//GEN-LAST:event_out_direct1MouseClicked
+
+    private void out_direct1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_out_direct1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_out_direct1ActionPerformed
+
+    private void Inv_TotStockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Inv_TotStockActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_Inv_TotStockActionPerformed
+
+    private void Inv_TableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Inv_TableMouseClicked
+        int c, ncount = 0;
+        try{
+        DefaultTableModel df = (DefaultTableModel)Inv_Table.getModel();
+        int selectedIndex = Inv_Table.getSelectedRow();
+        
+        Inv_Id.setText(df.getValueAt(selectedIndex, 0).toString());
+        Inv_Name.setText(df.getValueAt(selectedIndex, 1).toString());
+        Inv_Desc.setText(df.getValueAt(selectedIndex, 2).toString());
+        Inv_Status.setSelectedItem(df.getValueAt(selectedIndex, 3).toString());
+        Inv_Source.setSelectedItem(df.getValueAt(selectedIndex, 4).toString());
+        Inv_Av.setSelectedItem(df.getValueAt(selectedIndex, 5).toString());
+        
+        String invname = Inv_Name.getText();
+        
+        con = IRIS_Connection.getConnection();
+        pst = con.prepareStatement("select * from inventory");
+        rs = pst.executeQuery();
+        ResultSetMetaData rss = rs.getMetaData();
+        c = rss.getColumnCount();
+        
+        while(rs.next())
+        {
+                Vector v2 = new Vector();
+                for(int a=1; a<=c; a++)
+                {
+                        v2.add(rs.getString("item_id"));
+                        v2.add(rs.getString("item_name"));
+                        v2.add(rs.getString("item_description"));
+                        v2.add(rs.getString("item_status"));
+                        v2.add(rs.getString("item_source"));
+                        v2.add(rs.getString("item_availability"));
+                        v2.add(rs.getString("item_officer"));
+                        v2.add(rs.getString("item_date"));
+                }
+                if((invname.equals(v2.get(1))&&("In Stock".equals(v2.get(5))))){
+                    ncount++;
+                    if("Damaged".equals(v2.get(3))||"Under Repair".equals(v2.get(3)))
+                    {   ncount--;}
+                }
+        }
+        
+        String str = Integer.toString(ncount);
+        Inv_TotAv.setText(str);
+        
+        } catch (SQLException ex) {
+                //JOptionPane.showMessageDialog(null,"Failed");
+                Logger.getLogger(IRIS_AdminAccounts.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        
+    }//GEN-LAST:event_Inv_TableMouseClicked
+
+    private void Inv_StatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Inv_StatusActionPerformed
+        String status = Inv_Status.getSelectedItem().toString();
+            if("Damaged".equals(status)||"Under Repair".equals(status))
+            {
+                Inv_Av.setSelectedItem("Unavailable");
+                Inv_Av.setEnabled(false);
+            }
+            else if("Good Condition".equals(status))
+            {   
+                Inv_Av.setSelectedItem("In Stock");
+                Inv_Av.setEnabled(true);
+            }
+            else Inv_Av.setEnabled(true);
+    }//GEN-LAST:event_Inv_StatusActionPerformed
+
+    private void Inv_SearchBarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Inv_SearchBarActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_Inv_SearchBarActionPerformed
+
+    private void Inv_SearchBarKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_Inv_SearchBarKeyReleased
+        DefaultTableModel df = (DefaultTableModel)Inv_Table.getModel();
+        String search = Inv_SearchBar.getText().trim();
+
+        TableRowSorter<DefaultTableModel> tr = new TableRowSorter<DefaultTableModel>(df);
+        Inv_Table.setRowSorter(tr);
+        tr.setRowFilter(RowFilter.regexFilter(search));
+    }//GEN-LAST:event_Inv_SearchBarKeyReleased
+
+    private void tr_directMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tr_directMouseClicked
+        String logname = Logged_Name.getText();
+        IRIS_Home rf = new IRIS_Home(logname);
+        rf.setVisible(true);
+        rf.pack();
+        rf.setLocationRelativeTo(null);
+        rf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.dispose();
+    }//GEN-LAST:event_tr_directMouseClicked
+
+    private void tr_directActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tr_directActionPerformed
+        String logname = Logged_Name.getText();
+        IRIS_Home rf = new IRIS_Home(logname);
+        rf.setVisible(true);
+        rf.pack();
+        rf.setLocationRelativeTo(null);
+        rf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.dispose();
+    }//GEN-LAST:event_tr_directActionPerformed
+
+    private void Inv_HistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Inv_HistoryActionPerformed
+        String logname = Logged_Name.getText();
+        IRIS_InvHistory rf = new IRIS_InvHistory(logname);
+        rf.setVisible(true);
+        rf.pack();
+        rf.setLocationRelativeTo(null);
+        rf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.dispose();
+    }//GEN-LAST:event_Inv_HistoryActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(IRIS_Inventory.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(IRIS_Inventory.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(IRIS_Inventory.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(IRIS_Inventory.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new IRIS_Inventory().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> Inv_Av;
+    private javax.swing.JButton Inv_Delete;
+    private javax.swing.JTextArea Inv_Desc;
+    private javax.swing.JButton Inv_History;
+    private javax.swing.JTextField Inv_Id;
+    private javax.swing.JButton Inv_Insert;
+    private javax.swing.JLabel Inv_LAvail;
+    private javax.swing.JLabel Inv_LBorrow;
+    private javax.swing.JLabel Inv_LBorrow1;
+    private javax.swing.JLabel Inv_LIDesc;
+    private javax.swing.JLabel Inv_LIName;
+    private javax.swing.JLabel Inv_LINum;
+    private javax.swing.JLabel Inv_LISource;
+    private javax.swing.JLabel Inv_LIStatus;
+    private javax.swing.JLabel Inv_LTot;
+    private javax.swing.JLabel Inv_LTot1;
+    private javax.swing.JLabel Inv_LTot2;
+    private javax.swing.JLabel Inv_LTot6;
+    private javax.swing.JLabel Inv_Label;
+    private javax.swing.JTextField Inv_Name;
+    private javax.swing.JScrollPane Inv_Scroll;
+    private javax.swing.JScrollPane Inv_Scroll2;
+    private javax.swing.JTextField Inv_SearchBar;
+    private javax.swing.JComboBox<String> Inv_Source;
+    private javax.swing.JComboBox<String> Inv_Status;
+    private javax.swing.JTable Inv_Table;
+    private javax.swing.JTextField Inv_TotAv;
+    private javax.swing.JTextField Inv_TotRental;
+    private javax.swing.JTextField Inv_TotStock;
+    private javax.swing.JTextField Inv_TotUn;
+    private javax.swing.JButton Inv_Update;
+    private javax.swing.JLabel Logged_Name;
+    private javax.swing.JSeparator Separator;
+    private javax.swing.JSeparator Separator1;
+    private javax.swing.JButton inv_direct;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JLabel logged_as;
+    private javax.swing.JButton out_direct1;
+    private javax.swing.JButton rf_direct;
+    private javax.swing.JButton rs_direct;
+    private javax.swing.JButton tr_direct;
+    // End of variables declaration//GEN-END:variables
+}
